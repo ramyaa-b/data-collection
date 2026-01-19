@@ -27,16 +27,27 @@ st.set_page_config(
 # DATABASE SESSION
 # =========================
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from create_database import Submission, Base
+
+DATABASE_URL = "sqlite:///./hate_speech.db"
+
 @st.cache_resource
 def get_db_session():
     engine = create_engine(
         DATABASE_URL,
         connect_args={"check_same_thread": False}
     )
+
+    # 🔥 CRITICAL: create tables if they don't exist
+    Base.metadata.create_all(bind=engine)
+
     SessionLocal = sessionmaker(bind=engine)
     return SessionLocal()
 
 session = get_db_session()
+
 
 # =========================
 # UI
@@ -138,3 +149,4 @@ if latest:
             st.caption(f"Status: {s.status}")
 else:
     st.info("No submissions yet.")
+
